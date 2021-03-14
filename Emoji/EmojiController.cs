@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Emoji.Helpers;
 using HarmonyLib;
-using Reactor.Extensions;
-using Reactor.Unstrip;
 using UnityEngine;
+using XenoCore.Core;
 using XenoCore.Utils;
 using Object = UnityEngine.Object;
 
@@ -39,10 +37,7 @@ namespace Emoji {
 			if (Difference.Seconds < TIME_TO_LIVE) return false;
 			LastUsed = DateTime.Now;
 
-			EmojiNetwork.Send(CustomRPC.SpawnEmoji, Writer => {
-				Writer.Write(PlayerControl.LocalPlayer.PlayerId);
-				Writer.Write(EmojiId);
-			});
+			SpawnEmojiMessage.INSTANCE.Send(EmojiId);
 			SpawnEmoji(PlayerControl.LocalPlayer, EmojiId);
 			return true;
 		}
@@ -83,6 +78,29 @@ namespace Emoji {
 			Actions.AddRange(Keys.Select(Key => new EmojiAction {
 				Key = Key
 			}));
+		}
+	}
+	
+	internal class SpawnEmojiMessage : Message {
+		public static readonly SpawnEmojiMessage INSTANCE = new SpawnEmojiMessage();
+
+		private SpawnEmojiMessage() {
+		}
+		
+		protected override void Handle() {
+			var Player = ReadPlayer();
+			var EmojiId = Reader.ReadInt32();
+			
+			if (Player != null) {
+				EmojiController.SpawnEmoji(Player, EmojiId);
+			}
+		}
+
+		public void Send(int EmojiId) {
+			Write(Writer => {
+				Writer.Write(PlayerControl.LocalPlayer.PlayerId);
+				Writer.Write(EmojiId);
+			});
 		}
 	}
 

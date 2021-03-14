@@ -1,11 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.IL2CPP;
-using Emoji.Helpers;
 using HarmonyLib;
 using Reactor;
-using UnityEngine;
 using XenoCore;
-using XenoCore.Network;
+using XenoCore.Core;
 using XenoCore.Utils;
 
 namespace Emoji {
@@ -20,12 +18,12 @@ namespace Emoji {
 
 		public Harmony Harmony { get; } = new Harmony(Id);
 
+		public static readonly XenoMod Mod = new XenoMod(Id, "Emoji", Version, true);
+
 		public override void Load() {
 			Harmony.PatchAll();
-
-			VersionsList.Add("Emoji", Version, true);
 			
-			HandleRpcPatch.AddListener(new RPCEmoji());
+			Mod.RegisterMessage(SpawnEmojiMessage.INSTANCE);
 
 			StandardEmoji.Load();
 		}
