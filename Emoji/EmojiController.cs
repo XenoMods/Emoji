@@ -111,8 +111,8 @@ namespace Emoji {
 	
 	[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 	internal class UpdateForEmojiPatch {
-		public static void Postfix() {
-			// if (AmongUsClient.Instance.GameState != InnerNetClient.GameStates.Started) return;
+		public static void Postfix(HudManager __instance) {
+			if (PlayerControl.LocalPlayer == null || !PlayerControl.LocalPlayer.CanMove) return;
 
 			EmojiController.Update();
 		}
